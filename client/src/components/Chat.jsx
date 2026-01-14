@@ -20,7 +20,6 @@ function Chat({ socket, username }) {
         const handleMessage = (data) => {
             setMessages((prev) => [...prev, data]);
         };
-
         const handleHistory = (history) => {
             setMessages(history);
         }
