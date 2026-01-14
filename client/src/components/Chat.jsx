@@ -9,10 +9,9 @@ function Chat({ socket, username }) {
     const messagesEndRef = useRef(null);
     const [showEmoji, setShowEmoji] = useState(false);
 
-    const predefinedRooms = ['public', 'general', 'dev'];
+    const predefinedRooms = ['public', 'general', 'dev', 'ai-chat'];
 
     const emojis = ['😀', '😂', '😍', '👍', '🎉', '🔥', '😎', '🤔', '❤️', '🚀'];
-
     useEffect(() => {
         // Join default room
         socket.emit('join_room', currentRoom);

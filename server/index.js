@@ -30,6 +30,7 @@ const rooms = {
     'public': { name: 'Ogólny (Publiczny)', type: 'public', messages: [] },
     'general': { name: 'Główny', type: 'public', messages: [] },
     'dev': { name: 'Developerski', type: 'public', messages: [] },
+    'ai-chat': { name: 'Rozmowa z AI', type: 'public', messages: [] },
     'private1': { name: 'Tajny Pokój', type: 'private', messages: [] }
 };
 
@@ -83,6 +84,37 @@ io.on('connection', (socket) => {
         if (rooms[room].messages.length > 50) rooms[room].messages.shift();
 
         io.to(room).emit('receive_message', storedMessage);
+
+        // AI BOT LOGIC
+        if (room === 'ai-chat' && data.author !== 'AI Bot') {
+            setTimeout(() => {
+                const aiResponses = [
+                    "To bardzo ciekawe! Opowiedz mi o tym więcej.",
+                    "Jestem sztuczną inteligencją, ale staram się zrozumieć ludzi.",
+                    "Wydaje mi się, że masz rację.",
+                    "Czy możesz to sprecyzować?",
+                    "Analizuję Twoją wiadomość... wygląda sensownie!",
+                    "Moim zdaniem React jest świetnym frameworkiem.",
+                    "Pamiętaj o nawadnianiu się podczas kodowania! 💧",
+                    "Czy wiesz, że pierwszy programista był kobietą? To Ada Lovelace."
+                ];
+                const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+
+                const aiMessage = {
+                    room: 'ai-chat',
+                    author: 'AI Bot',
+                    content: randomResponse,
+                    type: 'text',
+                    timestamp: new Date().toISOString()
+                };
+
+                if (rooms[room]) {
+                    rooms[room].messages.push(aiMessage);
+                    if (rooms[room].messages.length > 50) rooms[room].messages.shift();
+                }
+                io.to(room).emit('receive_message', aiMessage);
+            }, 1000);
+        }
     });
 
     socket.on('disconnect', () => {
