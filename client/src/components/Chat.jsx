@@ -114,7 +114,13 @@ function Chat({ socket, username }) {
                                 </div>
                                 {msg.file && (
                                     <div className="message-file">
-                                        <img src={msg.file} alt="attachment" className="preview" />
+                                        {msg.file.startsWith('data:image') ? (
+                                            <img src={msg.file} alt="attachment" className="preview" />
+                                        ) : (
+                                            <a href={msg.file} download="file" style={{ color: 'var(--text-main)', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                📄 Pobierz plik
+                                            </a>
+                                        )}
                                     </div>
                                 )}
                             </div>
