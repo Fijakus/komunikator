@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from './Sidebar';
+import Battleship from './Battleship';
 
 function Chat({ socket, username }) {
     const [currentRoom, setCurrentRoom] = useState('public');
@@ -9,7 +10,7 @@ function Chat({ socket, username }) {
     const messagesEndRef = useRef(null);
     const [showEmoji, setShowEmoji] = useState(false);
 
-    const predefinedRooms = ['public', 'general', 'dev', 'ai-chat'];
+    const predefinedRooms = ['public', 'general', 'dev', 'ai-chat', 'statki'];
 
     const emojis = ['😀', '😂', '😍', '👍', '🎉', '🔥', '😎', '🤔', '❤️', '🚀'];
     useEffect(() => {
@@ -52,10 +53,6 @@ function Chat({ socket, username }) {
             };
 
             await socket.emit('send_message', messageData);
-            // Optimistic update handles by receive_message usually, but for local echo we can invoke it or wait for server.
-            // Since our server broadcasts to room including sender (io.to(room)), we wait for the event.
-            // But socket.io might exclude sender by default? 
-            // check server: io.to(room).emit... includes sender.
 
             setMessage('');
             setFile(null);
@@ -96,67 +93,73 @@ function Chat({ socket, username }) {
             />
 
             <div className="chat-area">
-                <div className="messages-container">
-                    {messages.map((msg, index) => {
-                        const isMe = msg.username === username;
-                        return (
-                            <div key={index} className={`message ${isMe ? 'sent' : 'received'}`}>
-                                <div className="message-meta">
-                                    <span>{msg.username}</span>
-                                    <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
-                                </div>
-                                <div className="message-content">
-                                    {msg.content}
-                                </div>
-                                {(msg.file || msg.file_data) && (
-                                    <div className="message-file">
-                                        {(msg.file || msg.file_data).startsWith('data:image') ? (
-                                            <img src={msg.file || msg.file_data} alt="attachment" className="preview" />
-                                        ) : (
-                                            <a href={msg.file || msg.file_data} download="file" style={{ color: 'var(--text-main)', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                📄 Pobierz plik
-                                            </a>
+                {currentRoom === 'statki' ? (
+                    <Battleship socket={socket} isActive={true} />
+                ) : (
+                    <>
+                        <div className="messages-container">
+                            {messages.map((msg, index) => {
+                                const isMe = msg.username === username;
+                                return (
+                                    <div key={index} className={`message ${isMe ? 'sent' : 'received'}`}>
+                                        <div className="message-meta">
+                                            <span>{msg.username}</span>
+                                            <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
+                                        </div>
+                                        <div className="message-content">
+                                            {msg.content}
+                                        </div>
+                                        {(msg.file || msg.file_data) && (
+                                            <div className="message-file">
+                                                {(msg.file || msg.file_data).startsWith('data:image') ? (
+                                                    <img src={msg.file || msg.file_data} alt="attachment" className="preview" />
+                                                ) : (
+                                                    <a href={msg.file || msg.file_data} download="file" style={{ color: 'var(--text-main)', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                        📄 Pobierz plik
+                                                    </a>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
-                                )}
-                            </div>
-                        );
-                    })}
-                    <div ref={messagesEndRef} />
-                </div>
-
-                <div className="chat-input-area">
-                    {showEmoji && (
-                        <div style={{ position: 'absolute', bottom: '80px', background: '#1e293b', padding: '10px', borderRadius: '10px', border: '1px solid #334155' }}>
-                            {emojis.map(e => <span key={e} style={{ cursor: 'pointer', fontSize: '1.5rem', margin: '5px' }} onClick={() => insertEmoji(e)}>{e}</span>)}
+                                );
+                            })}
+                            <div ref={messagesEndRef} />
                         </div>
-                    )}
 
-                    <button type="button" className="btn-icon" onClick={() => setShowEmoji(!showEmoji)}>
-                        😊
-                    </button>
+                        <div className="chat-input-area">
+                            {showEmoji && (
+                                <div style={{ position: 'absolute', bottom: '80px', background: '#1e293b', padding: '10px', borderRadius: '10px', border: '1px solid #334155' }}>
+                                    {emojis.map(e => <span key={e} style={{ cursor: 'pointer', fontSize: '1.5rem', margin: '5px' }} onClick={() => insertEmoji(e)}>{e}</span>)}
+                                </div>
+                            )}
 
-                    <label className="file-label">
-                        📎
-                        <input
-                            type="file"
-                            onChange={(e) => setFile(e.target.files[0])}
-                            style={{ display: 'none' }}
-                        />
-                    </label>
-                    {file && <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)' }}>{file.name}</span>}
+                            <button type="button" className="btn-icon" onClick={() => setShowEmoji(!showEmoji)}>
+                                😊
+                            </button>
 
-                    <form onSubmit={sendMessage} style={{ flex: 1, display: 'flex', gap: '10px' }}>
-                        <input
-                            type="text"
-                            placeholder="Napisz wiadomość..."
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            style={{ marginTop: 0 }}
-                        />
-                        <button type="submit" style={{ width: 'auto', marginTop: 0 }}>Wyślij</button>
-                    </form>
-                </div>
+                            <label className="file-label">
+                                📎
+                                <input
+                                    type="file"
+                                    onChange={(e) => setFile(e.target.files[0])}
+                                    style={{ display: 'none' }}
+                                />
+                            </label>
+                            {file && <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)' }}>{file.name}</span>}
+
+                            <form onSubmit={sendMessage} style={{ flex: 1, display: 'flex', gap: '10px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Napisz wiadomość..."
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    style={{ marginTop: 0 }}
+                                />
+                                <button type="submit" style={{ width: 'auto', marginTop: 0 }}>Wyślij</button>
+                            </form>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

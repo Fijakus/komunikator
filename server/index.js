@@ -73,6 +73,8 @@ const io = new Server(server, {
     }
 });
 
+const battleship = require('./battleship');
+
 // Mapa użytkowników online
 const onlineUsers = new Map(); // socketId -> { userId, username }
 
@@ -90,15 +92,36 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('join_game_queue', () => {
+        const userData = onlineUsers.get(socket.id);
+        if (!userData) {
+            socket.emit('force_logout');
+            return;
+        }
+        battleship.joinQueue(socket, userData);
+    });
+
+    socket.on('game_move', ({ row, col }) => {
+        const userData = onlineUsers.get(socket.id);
+        if (!userData) {
+            socket.emit('force_logout');
+            return;
+        }
+        battleship.handleGameMove(socket, row, col);
+    });
+
     socket.on('join_room', (roomName) => {
         // Basic validation
         if (typeof roomName !== 'string' || roomName.length > 30) return;
 
         const userData = onlineUsers.get(socket.id);
         if (!userData) {
-            socket.emit('error', { message: 'Musisz być zalogowany' });
+            socket.emit('force_logout');
             return;
         }
+
+        // Leave previous room if any
+        // ... (rest logic)
 
         socket.join(roomName);
         console.log(`User ${userData.username} joined room ${roomName}`);
@@ -128,7 +151,7 @@ io.on('connection', (socket) => {
 
         const userData = onlineUsers.get(socket.id);
         if (!userData) {
-            socket.emit('error', { message: 'Musisz być zalogowany' });
+            socket.emit('force_logout');
             return;
         }
 
@@ -204,6 +227,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
+        battleship.handleDisconnect(socket);
         const userData = onlineUsers.get(socket.id);
         if (userData) {
             console.log(`User disconnected: ${userData.username}`);

@@ -22,6 +22,17 @@ function App() {
     });
   };
 
+  useEffect(() => {
+    socket.on('force_logout', () => {
+      setIsLoggedIn(false);
+      setUser(null);
+    });
+
+    return () => {
+      socket.off('force_logout');
+    };
+  }, []);
+
   return (
     <div className="App">
       {!isLoggedIn ? (

@@ -42,6 +42,15 @@ db.exec(`
         FOREIGN KEY (user_id) REFERENCES users(id),
         UNIQUE(room_id, user_id)
     );
+
+    CREATE TABLE IF NOT EXISTS game_results (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        winner_id INTEGER,
+        loser_id INTEGER,
+        played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (winner_id) REFERENCES users(id),
+        FOREIGN KEY (loser_id) REFERENCES users(id)
+    );
 `);
 
 // Dodanie domyślnych pokoi
@@ -50,6 +59,7 @@ insertRoom.run('public', 'public');
 insertRoom.run('general', 'public');
 insertRoom.run('dev', 'public');
 insertRoom.run('ai-chat', 'public');
+insertRoom.run('statki', 'public'); // New game room
 insertRoom.run('private1', 'private');
 
 // Funkcje użytkowników
@@ -180,6 +190,18 @@ const api = {
     // Pobierz ostatnie wiadomości
     getRecentMessages: (limit = 100) => {
         return messageQueries.getRecent.all(limit);
+    },
+
+    // Zapisz wynik gry
+    saveGameResult: (winnerId, loserId) => {
+        try {
+            const stmt = db.prepare('INSERT INTO game_results (winner_id, loser_id) VALUES (?, ?)');
+            stmt.run(winnerId, loserId);
+            return { success: true };
+        } catch (error) {
+            console.error('Błąd zapisu gry:', error);
+            return { success: false, error: error.message };
+        }
     }
 };
 

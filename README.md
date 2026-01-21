@@ -43,6 +43,18 @@ Aplikacja używa SQLite z następującymi tabelami:
 *   **Serwer -> Klient**: `user_joined`
     *   Payload: `{ username: string }`
 
+### Gra w Statki (Battleship)
+W pokoju `statki` uruchamia się system gry:
+*   **Klient -> Serwer**: `join_game_queue`
+    *   Opis: Gracz dołącza do kolejki oczekujących.
+*   **Klient -> Serwer**: `game_move`
+    *   Payload: `{ row: number, col: number }`
+    *   Opis: Oddanie strzału w planszę przeciwnika.
+*   **Serwer -> Klient**: `game_start`
+    *   Opis: Rozpoczęcie gry po znalezieniu pary.
+*   **Serwer -> Klient**: `shot_result`
+    *   Payload: `{ shooter, row, col, result: 'HIT'|'MISS' }`
+
 ### Wiadomości
 *   **Klient -> Serwer**: `send_message`
     *   Payload:
