@@ -46,11 +46,9 @@ function Chat({ socket, username }) {
 
             const messageData = {
                 room: currentRoom,
-                author: username,
                 content: message,
                 file: fileData,
                 type: file ? 'file' : 'text',
-                timestamp: new Date().toISOString(),
             };
 
             await socket.emit('send_message', messageData);
@@ -100,22 +98,22 @@ function Chat({ socket, username }) {
             <div className="chat-area">
                 <div className="messages-container">
                     {messages.map((msg, index) => {
-                        const isMe = msg.author === username;
+                        const isMe = msg.username === username;
                         return (
                             <div key={index} className={`message ${isMe ? 'sent' : 'received'}`}>
                                 <div className="message-meta">
-                                    <span>{msg.author}</span>
+                                    <span>{msg.username}</span>
                                     <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
                                 </div>
                                 <div className="message-content">
                                     {msg.content}
                                 </div>
-                                {msg.file && (
+                                {(msg.file || msg.file_data) && (
                                     <div className="message-file">
-                                        {msg.file.startsWith('data:image') ? (
-                                            <img src={msg.file} alt="attachment" className="preview" />
+                                        {(msg.file || msg.file_data).startsWith('data:image') ? (
+                                            <img src={msg.file || msg.file_data} alt="attachment" className="preview" />
                                         ) : (
-                                            <a href={msg.file} download="file" style={{ color: 'var(--text-main)', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                            <a href={msg.file || msg.file_data} download="file" style={{ color: 'var(--text-main)', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                                 📄 Pobierz plik
                                             </a>
                                         )}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import Login from './components/Login';
 import Chat from './components/Chat';
@@ -8,14 +8,18 @@ import './App.css';
 const socket = io.connect("http://localhost:3001");
 
 function App() {
-  const [username, setUsername] = useState('');
+  const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleLogin = (user) => {
-    setUsername(user);
+  const handleLogin = (userData) => {
+    setUser(userData);
     setIsLoggedIn(true);
-    // Optionally notify server of login
-    // socket.emit('login', { username: user });
+
+    // Authenticate with socket server
+    socket.emit('authenticate', {
+      userId: userData.id,
+      username: userData.username
+    });
   };
 
   return (
@@ -23,7 +27,7 @@ function App() {
       {!isLoggedIn ? (
         <Login onLogin={handleLogin} />
       ) : (
-        <Chat socket={socket} username={username} />
+        <Chat socket={socket} username={user.username} userId={user.id} />
       )}
     </div>
   );
