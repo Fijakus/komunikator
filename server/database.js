@@ -1,6 +1,7 @@
 const Database = require('better-sqlite3');
 const bcrypt = require('bcrypt');
 const path = require('path');
+const logger = require('./logger');
 
 // Inicjalizacja bazy danych
 const db = new Database(path.join(__dirname, 'komunikator.db'));
@@ -200,7 +201,7 @@ const api = {
             stmt.run(winnerId, loserId);
             return { success: true };
         } catch (error) {
-            console.error('Błąd zapisu gry:', error);
+            logger.error('Error saving game result', error.stack);
             return { success: false, error: error.message };
         }
     },
@@ -211,7 +212,7 @@ const api = {
             const row = db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
             return row ? row.balance : 0;
         } catch (error) {
-            console.error('Błąd pobierania salda:', error);
+            logger.error('Error getting balance', error.stack);
             return 0;
         }
     },
@@ -222,7 +223,7 @@ const api = {
             db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(amount, userId);
             return { success: true };
         } catch (error) {
-            console.error('Błąd aktualizacji salda:', error);
+            logger.error('Error updating balance', error.stack);
             return { success: false, error: error.message };
         }
     }

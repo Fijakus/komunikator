@@ -1,4 +1,5 @@
 const { api } = require('./database');
+const logger = require('./logger');
 
 class BattleshipGame {
     constructor(player1, player2) {
@@ -140,7 +141,7 @@ class BattleshipGame {
         // Zapisz do bazy
         if (winner.userData && loser.userData) {
             api.saveGameResult(winner.userData.userId, loser.userData.userId);
-            console.log(`Gra zakończona. Wygrał: ${winner.userData.username}, Przegrał: ${loser.userData.username}`);
+            logger.info(`Game finished. Winner: ${winner.userData.username}, Loser: ${loser.userData.username}`);
         }
     }
 
@@ -172,7 +173,7 @@ function joinQueue(socket, userData) {
     queue.push(socket);
     socket.emit('queue_status', 'waiting');
 
-    console.log(`Gracz ${userData.username} dołączył do kolejki gry. W kolejce: ${queue.length}`);
+    logger.info(`Player ${userData.username} joined the game queue. Queue length: ${queue.length}`);
 
     if (queue.length >= 2) {
         const p1 = queue.shift();
@@ -185,7 +186,7 @@ function startGame(p1, p2) {
     const game = new BattleshipGame(p1, p2);
     games.set(p1.id, game);
     games.set(p2.id, game);
-    console.log(`Rozpoczęto grę: ${p1.id} vs ${p2.id}`);
+    logger.info(`Game started: ${p1.userData?.username} (id: ${p1.id}) vs ${p2.userData?.username} (id: ${p2.id})`);
 }
 
 function handleGameMove(socket, row, col) {
@@ -209,4 +210,4 @@ function handleDisconnect(socket) {
     }
 }
 
-module.exports = { joinQueue, handleGameMove, handleDisconnect };
+module.exports = { BattleshipGame, joinQueue, handleGameMove, handleDisconnect };

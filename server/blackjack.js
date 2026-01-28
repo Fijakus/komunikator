@@ -1,4 +1,5 @@
 const { api } = require('./database');
+const logger = require('./logger');
 
 class BlackjackGame {
     constructor(userId) {
@@ -58,6 +59,7 @@ class BlackjackGame {
 
         this.bet = bet;
         api.updateBalance(this.userId, -bet);
+        logger.info(`User ${this.userId} started Blackjack with bet ${bet}`);
 
         this.playerHand = [this.drawCard(), this.drawCard()];
         this.dealerHand = [this.drawCard(), this.drawCard()];
@@ -120,6 +122,7 @@ class BlackjackGame {
     }
 
     resolveGame() {
+        logger.info(`Blackjack resolved for user ${this.userId}: ${this.status} (bet: ${this.bet})`);
         if (this.status === 'win') {
             api.updateBalance(this.userId, this.bet * 2);
         } else if (this.status === 'blackjack') {
@@ -178,4 +181,4 @@ function handleBlackjackAction(socket, data, userId) {
     }
 }
 
-module.exports = { handleBlackjackAction };
+module.exports = { BlackjackGame, handleBlackjackAction };
