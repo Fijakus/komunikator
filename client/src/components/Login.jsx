@@ -76,15 +76,7 @@ function Login({ onLogin }) {
                 </p>
 
                 {error && (
-                    <div style={{
-                        background: 'rgba(255, 59, 48, 0.1)',
-                        border: '1px solid rgba(255, 59, 48, 0.3)',
-                        color: '#ff3b30',
-                        padding: '12px',
-                        borderRadius: '8px',
-                        marginBottom: '20px',
-                        fontSize: '14px'
-                    }}>
+                    <div className="error-box">
                         {error}
                     </div>
                 )}
@@ -123,25 +115,16 @@ function Login({ onLogin }) {
                 </form>
 
                 <div style={{
-                    marginTop: '20px',
+                    marginTop: '24px',
                     textAlign: 'center',
-                    color: 'var(--text-muted)',
-                    fontSize: '14px'
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.9rem'
                 }}>
                     {isRegistering ? 'Masz już konto?' : 'Nie masz konta?'}
-                    {' '}
                     <button
                         onClick={toggleMode}
                         disabled={loading}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--accent)',
-                            cursor: 'pointer',
-                            textDecoration: 'underline',
-                            fontSize: '14px',
-                            padding: 0
-                        }}
+                        className="text-link"
                     >
                         {isRegistering ? 'Zaloguj się' : 'Zarejestruj się'}
                     </button>

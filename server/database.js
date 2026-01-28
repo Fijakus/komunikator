@@ -60,6 +60,7 @@ insertRoom.run('general', 'public');
 insertRoom.run('dev', 'public');
 insertRoom.run('ai-chat', 'public');
 insertRoom.run('statki', 'public'); // New game room
+insertRoom.run('blackjack', 'public'); // New game room
 insertRoom.run('private1', 'private');
 
 // Funkcje użytkowników
@@ -200,6 +201,28 @@ const api = {
             return { success: true };
         } catch (error) {
             console.error('Błąd zapisu gry:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    // Pobierz saldo użytkownika
+    getBalance: (userId) => {
+        try {
+            const row = db.prepare('SELECT balance FROM users WHERE id = ?').get(userId);
+            return row ? row.balance : 0;
+        } catch (error) {
+            console.error('Błąd pobierania salda:', error);
+            return 0;
+        }
+    },
+
+    // Aktualizuj saldo użytkownika
+    updateBalance: (userId, amount) => {
+        try {
+            db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(amount, userId);
+            return { success: true };
+        } catch (error) {
+            console.error('Błąd aktualizacji salda:', error);
             return { success: false, error: error.message };
         }
     }

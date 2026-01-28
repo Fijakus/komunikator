@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from './Sidebar';
 import Battleship from './Battleship';
+import Blackjack from './Blackjack';
 
 function Chat({ socket, username }) {
     const [currentRoom, setCurrentRoom] = useState('public');
@@ -10,7 +11,7 @@ function Chat({ socket, username }) {
     const messagesEndRef = useRef(null);
     const [showEmoji, setShowEmoji] = useState(false);
 
-    const predefinedRooms = ['public', 'general', 'dev', 'ai-chat', 'statki'];
+    const predefinedRooms = ['public', 'general', 'dev', 'ai-chat', 'statki', 'blackjack'];
 
     const emojis = ['😀', '😂', '😍', '👍', '🎉', '🔥', '😎', '🤔', '❤️', '🚀'];
     useEffect(() => {
@@ -95,6 +96,8 @@ function Chat({ socket, username }) {
             <div className="chat-area">
                 {currentRoom === 'statki' ? (
                     <Battleship socket={socket} isActive={true} />
+                ) : currentRoom === 'blackjack' ? (
+                    <Blackjack socket={socket} isActive={true} />
                 ) : (
                     <>
                         <div className="messages-container">

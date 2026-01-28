@@ -74,6 +74,7 @@ const io = new Server(server, {
 });
 
 const battleship = require('./battleship');
+const blackjack = require('./blackjack');
 
 // Mapa użytkowników online
 const onlineUsers = new Map(); // socketId -> { userId, username }
@@ -85,6 +86,15 @@ io.on('connection', (socket) => {
     const messageRateLimit = { count: 0, lastMessage: 0 };
 
     // Uwierzytelnienie użytkownika
+    socket.on('blackjack_action', (data) => {
+        const userData = onlineUsers.get(socket.id);
+        if (!userData) {
+            socket.emit('force_logout');
+            return;
+        }
+        blackjack.handleBlackjackAction(socket, data, userData.userId);
+    });
+
     socket.on('authenticate', (userData) => {
         if (userData && userData.userId && userData.username) {
             onlineUsers.set(socket.id, userData);
