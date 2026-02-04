@@ -31,11 +31,13 @@ class BattleshipGame {
     generateBoard() {
         // Pusta plansza 10x10
         const board = Array(10).fill(null).map(() => Array(10).fill(0));
-        const ships = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]; // Rozmiary statków
+        // Statki wedle prośby: 1x4, 1x3, 1x2, 1x1
+        const ships = [4, 3, 2, 1];
 
         ships.forEach(size => {
             let placed = false;
-            while (!placed) {
+            let attempts = 0;
+            while (!placed && attempts < 100) {
                 const horizontal = Math.random() < 0.5;
                 const row = Math.floor(Math.random() * 10);
                 const col = Math.floor(Math.random() * 10);
@@ -44,6 +46,7 @@ class BattleshipGame {
                     this.placeShip(board, row, col, size, horizontal);
                     placed = true;
                 }
+                attempts++;
             }
         });
         return board;
@@ -52,15 +55,23 @@ class BattleshipGame {
     canPlaceShip(board, row, col, size, horizontal) {
         if (horizontal) {
             if (col + size > 10) return false;
-            for (let i = 0; i < size; i++) {
-                if (board[row][col + i] !== 0) return false; // Zajęte
-                // Sprawdź odstępy (uproszczone: tylko czy nie nachodzi)
-                // W pełnej wersji statki nie mogą się stykać, tu dla uproszczenia tylko kolizja
+            // Sprawdź czy statek i jego bezpośrednie otoczenie są wolne
+            for (let r = row - 1; r <= row + 1; r++) {
+                for (let c = col - 1; c <= col + size; c++) {
+                    if (r >= 0 && r < 10 && c >= 0 && c < 10) {
+                        if (board[r][c] !== 0) return false;
+                    }
+                }
             }
         } else {
             if (row + size > 10) return false;
-            for (let i = 0; i < size; i++) {
-                if (board[row + i][col] !== 0) return false;
+            // Sprawdź czy statek i jego bezpośrednie otoczenie są wolne
+            for (let r = row - 1; r <= row + size; r++) {
+                for (let c = col - 1; c <= col + 1; c++) {
+                    if (r >= 0 && r < 10 && c >= 0 && c < 10) {
+                        if (board[r][c] !== 0) return false;
+                    }
+                }
             }
         }
         return true;

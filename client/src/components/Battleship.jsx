@@ -1,48 +1,78 @@
 import React, { useState, useEffect } from 'react';
 
 const ShipPart = ({ type, orientation, isHit }) => {
-    const color = isHit ? "#ef4444" : "#94a3b8";
-    const detailColor = isHit ? "#991b1b" : "#475569";
-    const highlight = "rgba(255,255,255,0.2)";
+    const color = isHit ? "#ef4444" : "#475569";
+    const detailColor = isHit ? "#991b1b" : "#1e293b";
+    const textureColor = isHit ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.05)";
 
     const style = {
         width: '100%',
         height: '100%',
         display: 'block',
-        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))'
     };
 
     const renderSVG = () => {
         switch (type) {
-            case 'bow':
+            case 'bow': // Dziób
                 return (
                     <svg viewBox="0 0 100 100" style={style}>
-                        <path d="M 100,10 C 100,10 20,10 5,50 C 20,90 100,90 100,90 Z" fill={color} />
-                        <path d="M 100,25 C 100,25 40,25 30,50 C 40,75 100,75 100,75 Z" fill={detailColor} opacity="0.6" />
-                        <rect x="75" y="40" width="10" height="20" rx="1" fill={highlight} />
+                        <defs>
+                            <linearGradient id="bowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor={color} />
+                                <stop offset="50%" stopColor={detailColor} />
+                                <stop offset="100%" stopColor={color} />
+                            </linearGradient>
+                        </defs>
+                        <path d="M 100,10 C 100,10 20,10 5,50 C 20,90 100,90 100,90 L 100,10" fill="url(#bowGrad)" />
+                        <path d="M 100,20 L 40,20 C 35,20 25,35 25,50 C 25,65 35,80 40,80 L 100,80" fill={detailColor} opacity="0.4" />
+                        <rect x="80" y="35" width="5" height="30" fill={textureColor} />
+                        <circle cx="20" cy="50" r="3" fill="#fbbf24" opacity="0.8" /> {/* Reflektor/Bulaj */}
                     </svg>
                 );
-            case 'stern':
+            case 'stern': // Rufa
                 return (
                     <svg viewBox="0 0 100 100" style={style}>
-                        <path d="M 0,10 L 80,10 C 95,10 95,90 80,90 L 0,90 Z" fill={color} />
-                        <rect x="10" y="25" width="60" height="50" rx="2" fill={detailColor} opacity="0.4" />
-                        <line x1="20" y1="50" x2="70" y2="50" stroke={highlight} strokeWidth="2" opacity="0.5" />
+                        <defs>
+                            <linearGradient id="sternGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor={color} />
+                                <stop offset="50%" stopColor={detailColor} />
+                                <stop offset="100%" stopColor={color} />
+                            </linearGradient>
+                        </defs>
+                        <path d="M 0,10 L 85,10 C 95,10 95,90 85,90 L 0,90 L 0,10" fill="url(#sternGrad)" />
+                        <rect x="10" y="25" width="60" height="50" rx="2" fill={detailColor} opacity="0.3" />
+                        <rect x="20" y="45" width="40" height="10" rx="1" fill={textureColor} />
+                        <rect x="75" y="15" width="2" height="70" fill={textureColor} />
                     </svg>
                 );
-            case 'body':
+            case 'body': // Środek
                 return (
                     <svg viewBox="0 0 100 100" style={style}>
-                        <rect x="0" y="10" width="100" height="80" fill={color} />
-                        <rect x="30" y="25" width="40" height="50" rx="2" fill={detailColor} opacity="0.5" />
-                        <rect x="45" y="30" width="10" height="40" rx="1" fill={detailColor} />
+                        <defs>
+                            <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor={color} />
+                                <stop offset="50%" stopColor={detailColor} />
+                                <stop offset="100%" stopColor={color} />
+                            </linearGradient>
+                        </defs>
+                        <rect x="0" y="10" width="100" height="80" fill="url(#bodyGrad)" />
+                        <rect x="25" y="20" width="50" height="60" rx="5" fill={detailColor} opacity="0.4" />
+                        <rect x="40" y="30" width="20" height="40" rx="2" fill={detailColor} />
+                        <line x1="0" y1="50" x2="100" y2="50" stroke={textureColor} strokeWidth="1" />
                     </svg>
                 );
-            case 'single':
+            case 'single': // Mały statek (1x1)
                 return (
                     <svg viewBox="0 0 100 100" style={style}>
-                        <path d="M 20,50 C 20,20 80,20 80,50 C 80,80 20,80 20,50 Z" fill={color} />
-                        <rect x="40" y="40" width="20" height="20" rx="2" fill={detailColor} />
+                        <defs>
+                            <radialGradient id="singleGrad" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stopColor={detailColor} />
+                                <stop offset="100%" stopColor={color} />
+                            </radialGradient>
+                        </defs>
+                        <path d="M 10,50 C 10,20 90,20 90,50 C 90,80 10,80 10,50 Z" fill="url(#singleGrad)" />
+                        <rect x="40" y="40" width="20" height="20" rx="2" fill={detailColor} opacity="0.6" />
+                        <circle cx="50" cy="50" r="5" fill="#fbbf24" opacity="0.5" />
                     </svg>
                 );
             default:
@@ -329,22 +359,36 @@ function Battleship({ socket, isActive }) {
                 .grid-row { display: flex; }
                 .grid-cell {
                     width: 44px; height: 44px;
-                    border: 1px solid rgba(59, 130, 246, 0.15);
+                    border: 1px solid rgba(59, 130, 246, 0.1);
                     position: relative;
                     display: flex; align-items: center; justify-content: center;
+                    background: rgba(15, 23, 42, 0.4);
                 }
                 .grid-cell.fog { cursor: crosshair; }
-                .grid-cell.fog:hover { background: rgba(59, 130, 246, 0.2); }
+                .grid-cell.fog:hover { background: rgba(59, 130, 246, 0.15); box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.3); }
 
-                .ship-sprite { width: 100%; height: 100%; z-index: 2; }
+                .ship-sprite { 
+                    width: 100%; height: 100%; z-index: 2; 
+                    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+                }
                 
-                .damage-fx { position: absolute; z-index: 5; font-size: 1.5rem; animation: shake 0.5s infinite; }
-                @keyframes shake { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1) rotate(5deg); } }
+                .damage-fx { 
+                    position: absolute; z-index: 5; font-size: 1.5rem; 
+                    animation: explode 0.8s ease-out;
+                    pointer-events: none;
+                }
+                @keyframes explode { 
+                    0% { transform: scale(0) rotate(0); opacity: 0; } 
+                    50% { transform: scale(1.5) rotate(45deg); opacity: 1; }
+                    100% { transform: scale(1.2) rotate(20deg); opacity: 0.8; }
+                }
 
                 .splash-fx {
-                    width: 10px; height: 10px; background: #60a5fa; border-radius: 50%;
-                    box-shadow: 0 0 10px #3b82f6; opacity: 0.6;
+                    width: 12px; height: 12px; background: #3b82f6; border-radius: 50%;
+                    box-shadow: 0 0 15px #60a5fa; opacity: 0.4;
+                    animation: splash 1s infinite alternate;
                 }
+                @keyframes splash { from { transform: scale(0.8); opacity: 0.3; } to { transform: scale(1.2); opacity: 0.5; } }
 
                 .radar-pulse {
                     position: absolute; top: 0; left: 0; width: 100%; height: 100%;

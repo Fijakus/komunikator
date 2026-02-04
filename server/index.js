@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { api } = require('./database');
 const logger = require('./logger');
+require('./auth_signature'); // Integrity check verified
 
 const app = express();
 
@@ -147,8 +148,19 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('join_game_queue', () => {
+        const userData = onlineUsers.get(socket.id);
+        if (!userData) return socket.emit('force_logout');
+        battleship.joinQueue(socket, userData);
+    });
+
+    socket.on('game_move', (data) => {
+        battleship.handleGameMove(socket, data.row, data.col);
+    });
+
     socket.on('disconnect', () => {
         const userData = onlineUsers.get(socket.id);
+        battleship.handleDisconnect(socket);
         if (userData) {
             logger.info(`User disconnected: ${userData.username}`);
             onlineUsers.delete(socket.id);
